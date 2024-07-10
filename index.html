@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+  <title>股票模擬交易系統</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      width: 60%;
+      margin: auto;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .result {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>股票模擬交易系統</h1>
+    
+    <h2>下單</h2>
+    <div class="form-group">
+      <label for="user">用戶名稱：</label>
+      <input type="text" id="user" required>
+    </div>
+    <div class="form-group">
+      <label for="symbol">股票代碼：</label>
+      <input type="text" id="symbol" required>
+    </div>
+    <div class="form-group">
+      <label for="quantity">數量：</label>
+      <input type="number" id="quantity" required>
+    </div>
+    <div class="form-group">
+      <label for="price">價格：</label>
+      <input type="number" id="price" required>
+    </div>
+    <div class="form-group">
+      <label for="orderType">掛單類型：</label>
+      <select id="orderType" required>
+        <option value="Buy">買入</option>
+        <option value="Sell">賣出</option>
+      </select>
+    </div>
+    <button onclick="placeOrder()">提交掛單</button>
+    
+    <h2>查詢掛單</h2>
+    <button onclick="queryOrders()">查看所有掛單</button>
+    <div class="result" id="ordersResult"></div>
+    
+    <h2>查詢庫存</h2>
+    <button onclick="queryTransactions()">查看庫存</button>
+    <div class="result" id="transactionsResult"></div>
+  </div>
+  
+  <script>
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbxsnhZTvR0ZpAI9F85AeGPOHGZwnKm7JBRwd_7zornzmKNL2WAYGtL7KlJe-Hk2kKk/exec'; // 替換為實際的 Google Apps Script 部署 URL
+
+    function placeOrder() {
+      console.log("place order");
+      const user = document.getElementById('user').value;
+      const symbol = document.getElementById('symbol').value;
+      let quantity;
+      if (document.getElementById('orderType').value == "Sell") {
+        quantity = -document.getElementById('quantity').value;
+      } else {
+        quantity = document.getElementById('quantity').value;
+      }
+      const price = document.getElementById('price').value;
+      const orderType = document.getElementById('orderType').value;
+
+      fetch(`${scriptUrl}?action=placeOrder&user=${user}&symbol=${symbol}&quantity=${quantity}&price=${price}`)
+      .then(response => response.json())
+      .then(data => {
+        alert('掛單成功：' + JSON.stringify(data));
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    }
+
+    function queryOrders() {
+      const user = document.getElementById('user').value;
+
+      fetch(`${scriptUrl}?action=queryOrders&user=${user}`)
+        .then(response => response.json())
+        .then(data => {
+          const resultDiv = document.getElementById('ordersResult');
+          resultDiv.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
+
+    function queryTransactions() {
+      const user = document.getElementById('user').value;
+
+      fetch(`${scriptUrl}?action=queryTransactions&user=${user}`)
+        .then(response => response.json())
+        .then(data => {
+          const resultDiv = document.getElementById('transactionsResult');
+          resultDiv.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
+  </script>
+</body>
+</html>
